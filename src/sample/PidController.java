@@ -9,17 +9,47 @@ import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart.Series;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
 import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Controller implements Initializable {
+public class PidController implements Initializable {
     @FXML
     private LineChart<Number, Number> lineChart;
     @FXML
     private NumberAxis xAxis, yAxis;
+    @FXML
+    private Slider sliderKP;
+    @FXML
+    private TextField textFieldKP;
+    @FXML
+    private Slider sliderKI;
+    @FXML
+    private TextField textFieldKI;
+    @FXML
+    private Slider sliderKD;
+    @FXML
+    private TextField textFieldKD;
+    @FXML
+    private Slider sliderIntegralMax;
+    @FXML
+    private TextField textFieldIntegralMax;
+    @FXML
+    private Slider sliderIntegralMin;
+    @FXML
+    private TextField textFieldIntegralMin;
+    @FXML
+    private Slider sliderOutputMax;
+    @FXML
+    private TextField textFieldOutputMax;
+    @FXML
+    private Slider sliderOutputMin;
+    @FXML
+    private TextField textFieldOutputMin;
 
     private static final int XAXIS_LENGTH = 100, XAXIS_DIV = 5;
     private static final int XAXIS_COUNT = (int)(XAXIS_LENGTH / (float)XAXIS_DIV);
@@ -32,6 +62,7 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         displayedSeries = new LineChart.Series<>();
+        displayedSeries.setName("Series 1");
         dataMap = new ConcurrentHashMap<>();
         dataMap.put(0, 0);
 
@@ -46,12 +77,13 @@ public class Controller implements Initializable {
         yAxis.setTickUnit(10);
 
         lineChart.getData().add(displayedSeries);
+        lineChart.setCreateSymbols(false);
 
         Thread thread = new Thread(() -> {
             while (true) {
                 try {
                     tempCounter += 1;
-                    dataMap.put(tempCounter, (int)(127 * Math.abs(Math.sin(tempCounter / 0.00001))));
+                    dataMap.put(tempCounter, (int)(127 * Math.abs(Math.sin(tempCounter / 100.0))));
                     Thread.sleep(15);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

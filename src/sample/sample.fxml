@@ -1,32 +1,156 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-
-<AnchorPane xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.PidController">
    <children>
-      <GridPane alignment="center" hgap="10" vgap="10" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <LineChart fx:id="lineChart" title="Test Chart" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
-              <xAxis>
-                <NumberAxis side="BOTTOM" fx:id="xAxis" />
-              </xAxis>
-              <yAxis>
-                <NumberAxis fx:id="yAxis" side="LEFT" />
-              </yAxis>
-            </LineChart>
-         </children>
-         <columnConstraints>
-            <ColumnConstraints />
-         </columnConstraints>
-         <rowConstraints>
-            <RowConstraints />
-         </rowConstraints>
-      </GridPane>
+      <BorderPane layoutX="57.0" layoutY="14.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <center>
+            <GridPane>
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints maxHeight="518.0" minHeight="0.0" prefHeight="166.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="575.0" minHeight="10.0" prefHeight="409.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <LineChart fx:id="lineChart" title="PID Graph" GridPane.rowIndex="1">
+                    <xAxis>
+                      <NumberAxis side="BOTTOM" fx:id="xAxis" />
+                    </xAxis>
+                    <yAxis>
+                      <NumberAxis fx:id="yAxis" side="LEFT" />
+                    </yAxis>
+                  </LineChart>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <VBox alignment="TOP_CENTER" spacing="2.0">
+                                 <children>
+                                    <Label text="kP" />
+                                    <Slider fx:id="sliderKP" orientation="VERTICAL" />
+                                    <TextField fx:id="textFieldKP" maxWidth="20.0">
+                                       <font>
+                                          <Font size="8.0" />
+                                       </font>
+                                    </TextField>
+                                 </children>
+                              </VBox>
+                              <VBox alignment="TOP_CENTER" spacing="2.0">
+                                 <children>
+                                    <Label text="kI" />
+                                    <Slider fx:id="sliderKI" orientation="VERTICAL" />
+                                    <TextField fx:id="textFieldKI" maxWidth="20.0">
+                                       <font>
+                                          <Font size="8.0" />
+                                       </font>
+                                    </TextField>
+                                 </children>
+                              </VBox>
+                              <VBox alignment="TOP_CENTER" spacing="2.0">
+                                 <children>
+                                    <Label text="kD" />
+                                    <Slider fx:id="sliderKD" orientation="VERTICAL" />
+                                    <TextField fx:id="textFieldKD" maxWidth="20.0">
+                                       <font>
+                                          <Font size="8.0" />
+                                       </font>
+                                    </TextField>
+                                 </children>
+                              </VBox>
+                              <VBox alignment="TOP_CENTER" spacing="2.0">
+                                 <children>
+                                    <Label text="i min" />
+                                    <Slider fx:id="sliderIntegralMin" orientation="VERTICAL" />
+                                    <TextField fx:id="textFieldIntegralMin" maxWidth="20.0">
+                                       <font>
+                                          <Font size="8.0" />
+                                       </font>
+                                    </TextField>
+                                 </children>
+                              </VBox>
+                              <VBox alignment="TOP_CENTER" spacing="2.0">
+                                 <children>
+                                    <Label text="i max" />
+                                    <Slider fx:id="sliderIntegralMax" orientation="VERTICAL" />
+                                    <TextField fx:id="textFieldIntegralMax" maxWidth="20.0">
+                                       <font>
+                                          <Font size="8.0" />
+                                       </font>
+                                    </TextField>
+                                 </children>
+                              </VBox>
+                              <VBox alignment="TOP_CENTER" spacing="2.0">
+                                 <children>
+                                    <Label text="o min" />
+                                    <Slider fx:id="sliderOutputMin" orientation="VERTICAL" />
+                                    <TextField fx:id="textFieldOutputMin" maxWidth="20.0">
+                                       <font>
+                                          <Font size="8.0" />
+                                       </font>
+                                    </TextField>
+                                 </children>
+                              </VBox>
+                              <VBox alignment="TOP_CENTER" spacing="2.0">
+                                 <children>
+                                    <Label text="o max" />
+                                    <Slider fx:id="sliderOutputMax" orientation="VERTICAL" />
+                                    <TextField fx:id="textFieldOutputMax" maxWidth="20.0">
+                                       <font>
+                                          <Font size="8.0" />
+                                       </font>
+                                    </TextField>
+                                 </children>
+                              </VBox>
+                           </children>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </HBox>
+                     </children>
+                  </AnchorPane>
+               </children>
+            </GridPane>
+         </center>
+         <top>
+            <MenuBar BorderPane.alignment="CENTER">
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Close" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Delete" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="About" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+         </top>
+      </BorderPane>
    </children>
 </AnchorPane>
