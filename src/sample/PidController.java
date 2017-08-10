@@ -14,6 +14,8 @@ import javafx.scene.control.TextField;
 import javafx.util.Duration;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,41 +37,43 @@ public class PidController implements Initializable {
     @FXML
     private TextField textFieldKD;
     @FXML
-    private Slider sliderIntegralMax;
-    @FXML
-    private TextField textFieldIntegralMax;
-    @FXML
     private Slider sliderIntegralMin;
     @FXML
     private TextField textFieldIntegralMin;
     @FXML
-    private Slider sliderOutputMax;
+    private Slider sliderIntegralMax;
     @FXML
-    private TextField textFieldOutputMax;
+    private TextField textFieldIntegralMax;
     @FXML
     private Slider sliderOutputMin;
     @FXML
     private TextField textFieldOutputMin;
+    @FXML
+    private Slider sliderOutputMax;
+    @FXML
+    private TextField textFieldOutputMax;
+
+    private List<Slider> sliders = new ArrayList<>();
+    private List<TextField> textFields = new ArrayList<>();
 
     private static final int XAXIS_LENGTH = 100, XAXIS_DIV = 5;
     private static final int XAXIS_COUNT = (int)(XAXIS_LENGTH / (float)XAXIS_DIV);
 
-    private Series<Number, Number> displayedSeries;
-    private ConcurrentHashMap<Integer, Integer> dataMap;
+    private Series<Number, Number> displayedSeries = new LineChart.Series<>();
+    private ConcurrentHashMap<Integer, Integer> dataMap = new ConcurrentHashMap<>();
     private int tempCounter = 0;
     private int prevMax = -1;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        displayedSeries = new LineChart.Series<>();
         displayedSeries.setName("Series 1");
-        dataMap = new ConcurrentHashMap<>();
         dataMap.put(0, 0);
 
         xAxis.setAutoRanging(false);
         xAxis.setLowerBound(0);
         xAxis.setUpperBound(XAXIS_LENGTH);
         xAxis.setTickUnit(XAXIS_DIV);
+        xAxis.setOnScroll(event -> xAxis.setLowerBound(xAxis.getLowerBound() + event.getDeltaY()));
 
         yAxis.setAutoRanging(false);
         yAxis.setLowerBound(0);
@@ -78,6 +82,30 @@ public class PidController implements Initializable {
 
         lineChart.getData().add(displayedSeries);
         lineChart.setCreateSymbols(false);
+
+        sliders.add(sliderKP);
+        sliders.add(sliderKI);
+        sliders.add(sliderKD);
+        sliders.add(sliderIntegralMin);
+        sliders.add(sliderIntegralMax);
+        sliders.add(sliderOutputMin);
+        sliders.add(sliderOutputMax);
+
+        textFields.add(textFieldKP);
+        textFields.add(textFieldKI);
+        textFields.add(textFieldKD);
+        textFields.add(textFieldIntegralMin);
+        textFields.add(textFieldIntegralMax);
+        textFields.add(textFieldOutputMin);
+        textFields.add(textFieldOutputMax);
+
+        for (int i = 0; i < sliders.size(); i++) {
+            Slider slider = sliders.get(i);
+            TextField field = textFields.get(i);
+            slider.setMax(127);
+            slider.setMin(0);
+            slider.valueProperty().addListener(((observable, oldValue, newValue) -> field.setText(String.valueOf(newValue))));
+        }
 
         Thread thread = new Thread(() -> {
             while (true) {
@@ -112,8 +140,6 @@ public class PidController implements Initializable {
 
                     //Trim the end of the plot
                     if (displayedSeries.getData().size() > XAXIS_COUNT) {
-//                        displayedSeries.getData().remove(0, 1);
-                        xAxis.setLowerBound(0);
                         xAxis.setUpperBound(val);
                     }
 

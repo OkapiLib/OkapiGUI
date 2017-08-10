@@ -47,7 +47,7 @@
                                  <children>
                                     <Label text="kP" />
                                     <Slider fx:id="sliderKP" orientation="VERTICAL" />
-                                    <TextField fx:id="textFieldKP" maxWidth="20.0">
+                                    <TextField fx:id="textFieldKP" maxWidth="30.0">
                                        <font>
                                           <Font size="8.0" />
                                        </font>
@@ -58,7 +58,7 @@
                                  <children>
                                     <Label text="kI" />
                                     <Slider fx:id="sliderKI" orientation="VERTICAL" />
-                                    <TextField fx:id="textFieldKI" maxWidth="20.0">
+                                    <TextField fx:id="textFieldKI" maxWidth="30.0">
                                        <font>
                                           <Font size="8.0" />
                                        </font>
@@ -69,7 +69,7 @@
                                  <children>
                                     <Label text="kD" />
                                     <Slider fx:id="sliderKD" orientation="VERTICAL" />
-                                    <TextField fx:id="textFieldKD" maxWidth="20.0">
+                                    <TextField fx:id="textFieldKD" maxWidth="30.0">
                                        <font>
                                           <Font size="8.0" />
                                        </font>
@@ -80,7 +80,7 @@
                                  <children>
                                     <Label text="i min" />
                                     <Slider fx:id="sliderIntegralMin" orientation="VERTICAL" />
-                                    <TextField fx:id="textFieldIntegralMin" maxWidth="20.0">
+                                    <TextField fx:id="textFieldIntegralMin" maxWidth="30.0">
                                        <font>
                                           <Font size="8.0" />
                                        </font>
@@ -91,7 +91,7 @@
                                  <children>
                                     <Label text="i max" />
                                     <Slider fx:id="sliderIntegralMax" orientation="VERTICAL" />
-                                    <TextField fx:id="textFieldIntegralMax" maxWidth="20.0">
+                                    <TextField fx:id="textFieldIntegralMax" maxWidth="30.0">
                                        <font>
                                           <Font size="8.0" />
                                        </font>
@@ -102,7 +102,7 @@
                                  <children>
                                     <Label text="o min" />
                                     <Slider fx:id="sliderOutputMin" orientation="VERTICAL" />
-                                    <TextField fx:id="textFieldOutputMin" maxWidth="20.0">
+                                    <TextField fx:id="textFieldOutputMin" maxWidth="30.0">
                                        <font>
                                           <Font size="8.0" />
                                        </font>
@@ -113,7 +113,7 @@
                                  <children>
                                     <Label text="o max" />
                                     <Slider fx:id="sliderOutputMax" orientation="VERTICAL" />
-                                    <TextField fx:id="textFieldOutputMax" maxWidth="20.0">
+                                    <TextField fx:id="textFieldOutputMax" maxWidth="30.0">
                                        <font>
                                           <Font size="8.0" />
                                        </font>
