@@ -151,6 +151,14 @@
               </menus>
             </MenuBar>
          </top>
+         <bottom>
+            <HBox alignment="CENTER" prefHeight="50.0" spacing="5.0">
+               <children>
+                  <Label text="View Width:" />
+                  <TextField fx:id="textFieldGraphViewWidth" prefWidth="50.0" />
+               </children>
+            </HBox>
+         </bottom>
       </BorderPane>
    </children>
 </AnchorPane>

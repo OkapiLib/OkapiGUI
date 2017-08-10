@@ -21,10 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PidController implements Initializable {
     @FXML
-    private LineChart<Number, Number> lineChart;
-    @FXML
-    private NumberAxis xAxis, yAxis;
-    @FXML
     private Slider sliderKP;
     @FXML
     private TextField textFieldKP;
@@ -53,11 +49,19 @@ public class PidController implements Initializable {
     @FXML
     private TextField textFieldOutputMax;
 
+    @FXML
+    private LineChart<Number, Number> lineChart;
+    @FXML
+    private NumberAxis xAxis, yAxis;
+
+    @FXML
+    private TextField textFieldGraphViewWidth;
+
     private List<Slider> sliders = new ArrayList<>();
     private List<TextField> textFields = new ArrayList<>();
 
     private static final int XAXIS_LENGTH = 100, XAXIS_DIV = 5;
-    private static final int XAXIS_COUNT = (int)(XAXIS_LENGTH / (float)XAXIS_DIV);
+    private int xAxisWindowLength = XAXIS_LENGTH / XAXIS_DIV;
 
     private Series<Number, Number> displayedSeries = new LineChart.Series<>();
     private ConcurrentHashMap<Integer, Integer> dataMap = new ConcurrentHashMap<>();
@@ -66,23 +70,6 @@ public class PidController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        displayedSeries.setName("Series 1");
-        dataMap.put(0, 0);
-
-        xAxis.setAutoRanging(false);
-        xAxis.setLowerBound(0);
-        xAxis.setUpperBound(XAXIS_LENGTH);
-        xAxis.setTickUnit(XAXIS_DIV);
-        xAxis.setOnScroll(event -> xAxis.setLowerBound(xAxis.getLowerBound() + event.getDeltaY()));
-
-        yAxis.setAutoRanging(false);
-        yAxis.setLowerBound(0);
-        yAxis.setUpperBound(127);
-        yAxis.setTickUnit(10);
-
-        lineChart.getData().add(displayedSeries);
-        lineChart.setCreateSymbols(false);
-
         sliders.add(sliderKP);
         sliders.add(sliderKI);
         sliders.add(sliderKD);
@@ -99,12 +86,39 @@ public class PidController implements Initializable {
         textFields.add(textFieldOutputMin);
         textFields.add(textFieldOutputMax);
 
+        displayedSeries.setName("Series 1");
+        dataMap.put(0, 0);
+
+        xAxis.setAutoRanging(false);
+        xAxis.setLowerBound(0);
+        xAxis.setUpperBound(XAXIS_LENGTH);
+        xAxis.setTickUnit(XAXIS_DIV);
+        xAxis.setOnScroll(event -> {
+            xAxis.setLowerBound(xAxis.getLowerBound() + event.getDeltaY());
+            textFieldGraphViewWidth.setText(String.valueOf(xAxis.getUpperBound() - xAxis.getLowerBound()));
+        });
+
+        yAxis.setAutoRanging(false);
+        yAxis.setLowerBound(0);
+        yAxis.setUpperBound(127);
+        yAxis.setTickUnit(10);
+
+        lineChart.getData().add(displayedSeries);
+        lineChart.setCreateSymbols(false);
+
         for (int i = 0; i < sliders.size(); i++) {
             Slider slider = sliders.get(i);
             TextField field = textFields.get(i);
             slider.setMax(127);
             slider.setMin(0);
-            slider.valueProperty().addListener(((observable, oldValue, newValue) -> field.setText(String.valueOf(newValue))));
+            slider.valueProperty().addListener(((observable, oldValue, newValue) -> {
+                field.setText(String.valueOf(newValue));
+            }));
+            field.textProperty().addListener(((observable, oldValue, newValue) -> {
+                try {
+                    slider.setValue(Double.valueOf(newValue));
+                } catch (NumberFormatException ignored) {}
+            }));
         }
 
         Thread thread = new Thread(() -> {
@@ -139,8 +153,15 @@ public class PidController implements Initializable {
                     displayedSeries.getData().add(new LineChart.Data<>(val, dataMap.get(val)));
 
                     //Trim the end of the plot
-                    if (displayedSeries.getData().size() > XAXIS_COUNT) {
+                    if (displayedSeries.getData().size() > xAxisWindowLength) {
+                        xAxis.setLowerBound(xAxis.getLowerBound() + 1);
                         xAxis.setUpperBound(val);
+
+                        //Keep the view as big as the user's preference
+                        try {
+                            if ((int)(val - xAxis.getLowerBound()) != Integer.valueOf(textFieldGraphViewWidth.getText()))
+                                xAxis.setLowerBound(val - Double.valueOf(textFieldGraphViewWidth.getText()));
+                        } catch (NumberFormatException ignored) {}
                     }
 
                     dataMap.remove(val);
