@@ -9,11 +9,19 @@ import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart.Series;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
+import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -105,6 +113,37 @@ public class PidController implements Initializable {
 
         lineChart.getData().add(displayedSeries);
         lineChart.setCreateSymbols(false);
+        lineChart.setOnMouseClicked(event -> {
+            if (event.getButton().equals(MouseButton.SECONDARY))
+            {
+                ContextMenu menu = new ContextMenu();
+
+                //Menu item to export the current data store to a csv
+                MenuItem item = new MenuItem("Export current data to csv");
+                item.setOnAction(event1 -> {
+                    FileChooser fileChooser = new FileChooser();
+                    File selection = fileChooser.showSaveDialog(lineChart.getScene().getWindow());
+                    if (selection != null) {
+                        StringBuilder csvBuilder = new StringBuilder();
+                        for (LineChart.Data<Number, Number> elem : displayedSeries.getData())
+                            csvBuilder.append(String.valueOf(elem.getXValue())).append(",").append(String.valueOf(elem.getYValue())).append("\n");
+
+                        try (BufferedWriter writer = Files.newBufferedWriter(selection.toPath())) {
+                            writer.write(csvBuilder.toString());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                //Menu item to close the context menu
+                MenuItem cancel = new MenuItem("Cancel");
+                cancel.setOnAction(event1 -> menu.hide());
+
+                menu.getItems().addAll(item, cancel);
+                menu.show(lineChart, event.getScreenX(), event.getScreenY());
+            }
+        });
 
         for (int i = 0; i < sliders.size(); i++) {
             Slider slider = sliders.get(i);
