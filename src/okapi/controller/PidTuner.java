@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PidController implements Initializable {
+public class PidTuner implements Initializable {
     @FXML
     private Slider sliderKP;
     @FXML

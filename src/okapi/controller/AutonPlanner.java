@@ -3,11 +3,13 @@ package okapi.controller;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import okapi.jfx.*;
 
@@ -19,6 +21,9 @@ import java.util.ResourceBundle;
  * @since 2017-08-11
  */
 public class AutonPlanner implements Initializable {
+    @FXML
+    private GridPane canvasWrapper;
+
     private ObservableList<Node> displayedNodes = FXCollections.observableArrayList();
     private ObservableList<Line> displayedLines = FXCollections.observableArrayList();
     private Pane nodeOverlay, lineOverlay;
@@ -44,6 +49,7 @@ public class AutonPlanner implements Initializable {
                 !(event.getButton() == MouseButton.PRIMARY && event.isControlDown()))
                 event.consume();
         });
+        canvasWrapper.getChildren().addAll(pane);
 
         NodeListenerFactory listenerFactory = new NodeListenerFactory((node -> displayedNodes.remove(node)),
                                                                       (node -> {
@@ -51,5 +57,7 @@ public class AutonPlanner implements Initializable {
                                                                           lineOverlay.getChildren().setAll(displayedLines);
                                                                       }));
         NodeFactory nodeFactory = new NodeFactory(listenerFactory);
+
+        displayedNodes.add(nodeFactory.getNode(10, 10));
     }
 }
