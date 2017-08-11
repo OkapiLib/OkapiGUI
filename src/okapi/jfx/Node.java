@@ -32,11 +32,13 @@ public class Node extends Circle {
     public void setHighlighted() {
         setStroke(Color.web("0x00000000"));
         setStrokeWidth(3);
+        System.out.println("highlighted");
     }
 
     public void setUnhighlighted() {
         setStroke(Color.web("0x00000099"));
         setStrokeWidth(1);
+        System.out.println("unhighlighted");
     }
 
     public void setCenter(double x, double y) {

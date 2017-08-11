@@ -18,6 +18,11 @@ public class NodeListenerFactory {
     private Consumer<Node> deleteNode, redrawConnections;
 //    private BiConsumer<Double, Double> onMouseMoved;
 
+    /**
+     * Adds listeners to a Node
+     * @param deleteNode        Called when a node needs to be deleted. Given the node to delete
+     * @param redrawConnections Called when inter-node connections need to be redrawn. Given the node to draw connections from
+     */
     public NodeListenerFactory(Consumer<Node> deleteNode, Consumer<Node> redrawConnections) { //, BiConsumer<Double, Double> onMouseMoved) {
         this.deleteNode = deleteNode;
         this.redrawConnections = redrawConnections;
@@ -129,7 +134,7 @@ public class NodeListenerFactory {
                     Node p = ((Node) (t.getSource()));
                     p.setCenter(newTranslateX, newTranslateY);
 
-                    updateSelection(p);
+//                    updateSelection(p);
                 } else {
                     Node p = ((Node) (t.getSource()));
                     p.setTranslate(newTranslateX, newTranslateY);
@@ -154,8 +159,12 @@ public class NodeListenerFactory {
      */
     public void updateSelection(Node node) {
         //Clear highlight
-        if (currentSelection != null)
-            currentSelection.setUnhighlighted();
+        if (currentSelection != null) {
+            if (currentSelection.equals(node))
+                return;
+            else
+                currentSelection.setUnhighlighted();
+        }
 
         currentSelection = node;
         currentSelection.setHighlighted();
