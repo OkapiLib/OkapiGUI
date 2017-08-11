@@ -1,4 +1,4 @@
-package sample;
+package okapi;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
