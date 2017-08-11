@@ -1,4 +1,4 @@
-package okapi;
+package okapi.controller;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
