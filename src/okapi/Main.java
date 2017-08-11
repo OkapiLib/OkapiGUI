@@ -10,8 +10,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("../../res/view/sample.fxml"));
-        primaryStage.setTitle("Hello World");
+        Parent root = FXMLLoader.load(getClass().getResource("/view/pidTuner.fxml"));
+        primaryStage.setTitle("OkapiGUI");
         primaryStage.setScene(new Scene(root, 800, 600));
         primaryStage.show();
     }

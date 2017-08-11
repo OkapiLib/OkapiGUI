@@ -16,10 +16,12 @@ public class NodeListenerFactory {
     private double orgSceneX, orgSceneY, orgTranslateX, orgTranslateY, mouseX, mouseY;
     private Node currentSelection;
     private Consumer<Node> deleteNode, redrawConnections;
+//    private BiConsumer<Double, Double> onMouseMoved;
 
-    public NodeListenerFactory(Consumer<Node> deleteNode, Consumer<Node> redrawConnections) {
+    public NodeListenerFactory(Consumer<Node> deleteNode, Consumer<Node> redrawConnections) { //, BiConsumer<Double, Double> onMouseMoved) {
         this.deleteNode = deleteNode;
         this.redrawConnections = redrawConnections;
+//        this.onMouseMoved = onMouseMoved;
     }
 
     /**
@@ -141,6 +143,7 @@ public class NodeListenerFactory {
         public void handle(MouseEvent event) {
             mouseX = event.getScreenX();
             mouseY = event.getScreenY();
+//            onMouseMoved.accept(mouseX, mouseY);
         }
     };
 

@@ -1,4 +1,4 @@
-.idea/**.xml
-.idea/artifacts
-.idea/inspectionProfiles
+.idea/
 out/
+.gitignore
+.gradle/
