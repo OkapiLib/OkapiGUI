@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+
+
+<AnchorPane fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="okapi.controller.NewTabController">
+   <children>
+      <HBox layoutX="20.0" spacing="5.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
+         <children>
+            <Button fx:id="pidTuner" alignment="TOP_LEFT" mnemonicParsing="false" text="PID Tuner" />
+            <Button fx:id="autonPlanner" mnemonicParsing="false" text="Autonomous Planner" />
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>
