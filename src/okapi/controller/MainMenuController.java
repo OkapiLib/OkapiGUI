@@ -3,9 +3,8 @@ package okapi.controller;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -31,8 +30,6 @@ public class MainMenuController implements Initializable {
         addTabTab.setOnSelectionChanged(event -> {
             int size = mainTabPane.getTabs().size();
 
-            AnchorPane root = new AnchorPane();
-
             BiConsumer<Button, String> makeButton = (button, file) -> button.setOnAction(__ -> {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(file));
                 try {
@@ -42,6 +39,8 @@ public class MainMenuController implements Initializable {
                 }
             });
 
+            AnchorPane root = new AnchorPane();
+
             Button pidButton = new Button("PID Tuner");
             makeButton.accept(pidButton, "/view/pidTuner.fxml");
 
@@ -49,14 +48,40 @@ public class MainMenuController implements Initializable {
             makeButton.accept(autonButton, "/view/autonPlanner.fxml");
 
             HBox hBox = new HBox();
+            hBox.setPadding(new Insets(10, 0, 0, 10));
             hBox.setSpacing(10);
             hBox.getChildren().addAll(pidButton, autonButton);
 
             root.getChildren().add(hBox);
 
-            Tab newTab = new Tab("Tab " + size, root);
-            mainTabPane.getTabs().add(size - 1, newTab);
-            mainTabPane.getSelectionModel().select(newTab);
+            Tab tab = new Tab("", root);
+            Label label = new Label("Tab" + size);
+            tab.setGraphic(label);
+            TextField textField = new TextField();
+
+            label.setOnMouseClicked(event1 -> {
+                if (event1.getClickCount() == 2) {
+                    textField.setText(label.getText());
+                    tab.setGraphic(textField);
+                    textField.selectAll();
+                    textField.requestFocus();
+                }
+            });
+
+            textField.setOnAction(action -> {
+                label.setText(textField.getText());
+                tab.setGraphic(label);
+            });
+
+            textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue) {
+                    label.setText(textField.getText());
+                    tab.setGraphic(label);
+                }
+            });
+
+            mainTabPane.getTabs().add(size - 1, tab);
+            mainTabPane.getSelectionModel().select(tab);
         });
 
         mainTabPane.getTabs().add(addTabTab);
