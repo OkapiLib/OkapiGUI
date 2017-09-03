@@ -12,17 +12,13 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.stage.FileChooser;
-import javafx.stage.Window;
+import okapi.jinx.JinxSource;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class PidTuner implements Initializable {
     @FXML
@@ -66,16 +62,13 @@ public class PidTuner implements Initializable {
     private int xAxisWindowLength = XAXIS_LENGTH / XAXIS_DIV;
 
     private Series<Number, Number> displayedSeries = new LineChart.Series<>();
-    private ConcurrentHashMap<Integer, Integer> dataMap = new ConcurrentHashMap<>();
-    private int tempCounter = 0;
-    private int prevMax = -1;
+    private JinxSource source = new JinxSource();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setSliderAndTextFieldListeners();
 
         displayedSeries.setName("Series 1");
-        dataMap.put(0, 0);
 
         xAxis.setAutoRanging(false);
         xAxis.setLowerBound(0);
@@ -99,7 +92,12 @@ public class PidTuner implements Initializable {
 
                 //Menu item to export the current data store to a csv
                 MenuItem item = new MenuItem("Export current data to csv");
-                item.setOnAction(__ -> exportSeriesToCSV(lineChart.getScene().getWindow(), displayedSeries));
+                item.setOnAction(__ -> {
+                    FileChooser fileChooser = new FileChooser();
+                    File selection = fileChooser.showSaveDialog(lineChart.getScene().getWindow());
+                    if (selection != null)
+                        source.exportDataMapToCSV(selection);
+                });
 
                 //Menu item to close the context menu
                 MenuItem cancel = new MenuItem("Cancel");
@@ -110,19 +108,8 @@ public class PidTuner implements Initializable {
             }
         });
 
-        //Simulate JINX thread
-        new Thread(() -> {
-            while (true) {
-                try {
-                    tempCounter += 1;
-                    dataMap.put(tempCounter, (int) (127 * Math.abs(Math.sin(tempCounter / 100.0))));
-                    Platform.runLater(this::fillSeriesFromDataQueue);
-                    Thread.sleep(15);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        source.setCallback((key, val) -> Platform.runLater(() -> addToSeries(key, val)));
+        source.open();
     }
 
     private void setSliderAndTextFieldListeners() {
@@ -162,52 +149,21 @@ public class PidTuner implements Initializable {
         }
     }
 
-    private void exportSeriesToCSV(Window window, Series<?, ?> series) {
-        FileChooser fileChooser = new FileChooser();
-        File selection = fileChooser.showSaveDialog(window);
-        if (selection != null) {
-            StringBuilder csvBuilder = new StringBuilder();
-            for (LineChart.Data<?, ?> elem : series.getData())
-                csvBuilder.append(String.valueOf(elem.getXValue())).append(",").append(String.valueOf(elem.getYValue())).append("\n");
+    private void addToSeries(Integer key, Integer value) {
+        displayedSeries.getData().add(new LineChart.Data<>(key, value));
 
-            //Append .csv if it's not there already
-            if (csvBuilder.indexOf(".csv") == -1)
-                csvBuilder.append(".csv");
+        //Trim the end of the plot
+        if (displayedSeries.getData().size() > xAxisWindowLength) {
+            xAxis.setLowerBound(xAxis.getLowerBound() + 1);
+            xAxis.setUpperBound(key);
 
-            try (BufferedWriter writer = Files.newBufferedWriter(selection.toPath())) {
-                writer.write(csvBuilder.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void fillSeriesFromDataQueue() {
-        if (!dataMap.isEmpty()) {
-            //Pull most recent data off queue
-            dataMap.keySet().stream().min(Integer::compareTo).ifPresent(val -> {
-                //Only add new data if we have gone forward in time
-                if (val > prevMax) {
-                    prevMax = val;
-
-                    displayedSeries.getData().add(new LineChart.Data<>(val, dataMap.get(val)));
-
-                    //Trim the end of the plot
-                    if (displayedSeries.getData().size() > xAxisWindowLength) {
-                        xAxis.setLowerBound(xAxis.getLowerBound() + 1);
-                        xAxis.setUpperBound(val);
-
-                        //Keep the view as big as the user's preference
-                        try {
-                            if ((int) (val - xAxis.getLowerBound()) != Integer.valueOf(textFieldGraphViewWidth.getText()))
-                                xAxis.setLowerBound(val - Double.valueOf(textFieldGraphViewWidth.getText()));
-                        } catch (NumberFormatException ignored) {
-                        }
-                    }
-
-                    dataMap.remove(val);
+            //Keep the view as big as the user's preference
+            try {
+                if ((int) (key - xAxis.getLowerBound()) != Integer.valueOf(textFieldGraphViewWidth.getText())) {
+                    xAxis.setLowerBound(key - Double.valueOf(textFieldGraphViewWidth.getText()));
                 }
-            });
+            } catch (NumberFormatException ignored) {
+            }
         }
     }
 }
