@@ -94,7 +94,7 @@ public class PidTuner implements Initializable {
         textFields.add(textFieldOutputMin);
         textFields.add(textFieldOutputMax);
 
-        displayedSeries.setName("Series 1");
+        displayedSeries.setName("Test Series");
         dataMap.put(0, 0);
 
         xAxis.setAutoRanging(false);
@@ -127,6 +127,10 @@ public class PidTuner implements Initializable {
                         StringBuilder csvBuilder = new StringBuilder();
                         for (LineChart.Data<Number, Number> elem : displayedSeries.getData())
                             csvBuilder.append(String.valueOf(elem.getXValue())).append(",").append(String.valueOf(elem.getYValue())).append("\n");
+
+                        //Append .csv if it's not there already
+                        if (csvBuilder.indexOf(".csv") == -1)
+                            csvBuilder.append(".csv");
 
                         try (BufferedWriter writer = Files.newBufferedWriter(selection.toPath())) {
                             writer.write(csvBuilder.toString());

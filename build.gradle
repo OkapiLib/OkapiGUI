@@ -12,6 +12,8 @@ repositories {
 }
 
 dependencies {
+    compile 'org.dockfx:DockFX:0.1.12'
+    compile 'org.controlsfx:controlsfx:8.40.13'
 }
 
 sourceSets {
