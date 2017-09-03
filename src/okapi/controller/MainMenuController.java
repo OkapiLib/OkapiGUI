@@ -39,6 +39,7 @@ public class MainMenuController implements Initializable {
                 }
             });
 
+            //Content can't be in an FXML file because we need to replace the current Tab contents with this
             AnchorPane root = new AnchorPane();
 
             Button pidButton = new Button("PID Tuner");

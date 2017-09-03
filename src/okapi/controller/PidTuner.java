@@ -1,9 +1,6 @@
 package okapi.controller;
 
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.SequentialTransition;
-import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
@@ -15,7 +12,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.stage.FileChooser;
-import javafx.util.Duration;
+import javafx.stage.Window;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -65,9 +62,6 @@ public class PidTuner implements Initializable {
     @FXML
     private TextField textFieldGraphViewWidth;
 
-    private List<Slider> sliders = new ArrayList<>();
-    private List<TextField> textFields = new ArrayList<>();
-
     private static final int XAXIS_LENGTH = 100, XAXIS_DIV = 5;
     private int xAxisWindowLength = XAXIS_LENGTH / XAXIS_DIV;
 
@@ -78,23 +72,9 @@ public class PidTuner implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        sliders.add(sliderKP);
-        sliders.add(sliderKI);
-        sliders.add(sliderKD);
-        sliders.add(sliderIntegralMin);
-        sliders.add(sliderIntegralMax);
-        sliders.add(sliderOutputMin);
-        sliders.add(sliderOutputMax);
+        setSliderAndTextFieldListeners();
 
-        textFields.add(textFieldKP);
-        textFields.add(textFieldKI);
-        textFields.add(textFieldKD);
-        textFields.add(textFieldIntegralMin);
-        textFields.add(textFieldIntegralMax);
-        textFields.add(textFieldOutputMin);
-        textFields.add(textFieldOutputMax);
-
-        displayedSeries.setName("Test Series");
+        displayedSeries.setName("Series 1");
         dataMap.put(0, 0);
 
         xAxis.setAutoRanging(false);
@@ -114,41 +94,57 @@ public class PidTuner implements Initializable {
         lineChart.getData().add(displayedSeries);
         lineChart.setCreateSymbols(false);
         lineChart.setOnMouseClicked(event -> {
-            if (event.getButton().equals(MouseButton.SECONDARY))
-            {
+            if (event.getButton().equals(MouseButton.SECONDARY)) {
                 ContextMenu menu = new ContextMenu();
 
                 //Menu item to export the current data store to a csv
                 MenuItem item = new MenuItem("Export current data to csv");
-                item.setOnAction(event1 -> {
-                    FileChooser fileChooser = new FileChooser();
-                    File selection = fileChooser.showSaveDialog(lineChart.getScene().getWindow());
-                    if (selection != null) {
-                        StringBuilder csvBuilder = new StringBuilder();
-                        for (LineChart.Data<Number, Number> elem : displayedSeries.getData())
-                            csvBuilder.append(String.valueOf(elem.getXValue())).append(",").append(String.valueOf(elem.getYValue())).append("\n");
-
-                        //Append .csv if it's not there already
-                        if (csvBuilder.indexOf(".csv") == -1)
-                            csvBuilder.append(".csv");
-
-                        try (BufferedWriter writer = Files.newBufferedWriter(selection.toPath())) {
-                            writer.write(csvBuilder.toString());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                item.setOnAction(__ -> exportSeriesToCSV(lineChart.getScene().getWindow(), displayedSeries));
 
                 //Menu item to close the context menu
                 MenuItem cancel = new MenuItem("Cancel");
-                cancel.setOnAction(event1 -> menu.hide());
+                cancel.setOnAction(__ -> menu.hide());
 
                 menu.getItems().addAll(item, cancel);
                 menu.show(lineChart, event.getScreenX(), event.getScreenY());
             }
         });
 
+        //Simulate JINX thread
+        new Thread(() -> {
+            while (true) {
+                try {
+                    tempCounter += 1;
+                    dataMap.put(tempCounter, (int) (127 * Math.abs(Math.sin(tempCounter / 100.0))));
+                    Platform.runLater(this::fillSeriesFromDataQueue);
+                    Thread.sleep(15);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void setSliderAndTextFieldListeners() {
+        List<Slider> sliders = new ArrayList<>();
+        List<TextField> textFields = new ArrayList<>();
+
+        sliders.add(sliderKP);
+        sliders.add(sliderKI);
+        sliders.add(sliderKD);
+        sliders.add(sliderIntegralMin);
+        sliders.add(sliderIntegralMax);
+        sliders.add(sliderOutputMin);
+        sliders.add(sliderOutputMax);
+        textFields.add(textFieldKP);
+        textFields.add(textFieldKI);
+        textFields.add(textFieldKD);
+        textFields.add(textFieldIntegralMin);
+        textFields.add(textFieldIntegralMax);
+        textFields.add(textFieldOutputMin);
+        textFields.add(textFieldOutputMax);
+
+        //Set listeners
         for (int i = 0; i < sliders.size(); i++) {
             Slider slider = sliders.get(i);
             TextField field = textFields.get(i);
@@ -160,29 +156,30 @@ public class PidTuner implements Initializable {
             field.textProperty().addListener(((observable, oldValue, newValue) -> {
                 try {
                     slider.setValue(Double.valueOf(newValue));
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                }
             }));
         }
+    }
 
-        Thread thread = new Thread(() -> {
-            while (true) {
-                try {
-                    tempCounter += 1;
-                    dataMap.put(tempCounter, (int)(127 * Math.abs(Math.sin(tempCounter / 100.0))));
-                    Thread.sleep(15);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+    private void exportSeriesToCSV(Window window, Series<?, ?> series) {
+        FileChooser fileChooser = new FileChooser();
+        File selection = fileChooser.showSaveDialog(window);
+        if (selection != null) {
+            StringBuilder csvBuilder = new StringBuilder();
+            for (LineChart.Data<?, ?> elem : series.getData())
+                csvBuilder.append(String.valueOf(elem.getXValue())).append(",").append(String.valueOf(elem.getYValue())).append("\n");
+
+            //Append .csv if it's not there already
+            if (csvBuilder.indexOf(".csv") == -1)
+                csvBuilder.append(".csv");
+
+            try (BufferedWriter writer = Files.newBufferedWriter(selection.toPath())) {
+                writer.write(csvBuilder.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        });
-        thread.start();
-
-        Timeline timeline = new Timeline();
-        timeline.setCycleCount(Animation.INDEFINITE);
-        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(1), actionEvent -> fillSeriesFromDataQueue()));
-        SequentialTransition animation = new SequentialTransition();
-        animation.getChildren().add(timeline);
-        animation.play();
+        }
     }
 
     private void fillSeriesFromDataQueue() {
@@ -202,9 +199,10 @@ public class PidTuner implements Initializable {
 
                         //Keep the view as big as the user's preference
                         try {
-                            if ((int)(val - xAxis.getLowerBound()) != Integer.valueOf(textFieldGraphViewWidth.getText()))
+                            if ((int) (val - xAxis.getLowerBound()) != Integer.valueOf(textFieldGraphViewWidth.getText()))
                                 xAxis.setLowerBound(val - Double.valueOf(textFieldGraphViewWidth.getText()));
-                        } catch (NumberFormatException ignored) {}
+                        } catch (NumberFormatException ignored) {
+                        }
                     }
 
                     dataMap.remove(val);
