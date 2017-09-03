@@ -33,16 +33,14 @@ public class MainMenuController implements Initializable {
 
             AnchorPane root = new AnchorPane();
 
-            BiConsumer<Button, String> makeButton = (button, file) -> {
-                button.setOnAction(__ -> {
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource(file));
-                    try {
-                        mainTabPane.getSelectionModel().getSelectedItem().setContent(loader.load());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-            };
+            BiConsumer<Button, String> makeButton = (button, file) -> button.setOnAction(__ -> {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(file));
+                try {
+                    mainTabPane.getSelectionModel().getSelectedItem().setContent(loader.load());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
 
             Button pidButton = new Button("PID Tuner");
             makeButton.accept(pidButton, "/view/pidTuner.fxml");
